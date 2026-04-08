@@ -58,25 +58,16 @@
 
     _restoreFromSpaceHold() {
       const video = this.holdVideo;
-      const scrolled = this.scrolledDuringHold;
-      const baseSpeed = this.holdBaseSpeed;
 
       this.spaceHeld = false;
       this.scrolledDuringHold = false;
       this.holdVideo = null;
       this.holdBaseSpeed = 1.0;
-      this.sc.isTurboActive = false;
 
-      if (!video) return;
+      this.sc.reset();
 
-      if (scrolled) {
-        // User scrolled to a specific speed — it was already remembered by the
-        // wheel handler, so just sync the controller state.
-        this.sc.currentSpeed = this.vm.getRememberedSpeed(video);
-      } else {
-        // Pure turbo hold (no scroll) — restore the video's pre-turbo speed.
-        this.sc.currentSpeed = baseSpeed;
-        this.vm.applySpeedToVideo(video, baseSpeed, { remember: true });
+      if (video) {
+        this.vm.applySpeedToVideo(video, 1.0, { remember: true });
       }
     }
 
@@ -137,8 +128,7 @@
       if (!video) return;
 
       if (this.holdVideo && this.holdVideo !== video) {
-        const priorSpeed = this.vm.getRememberedSpeed(this.holdVideo);
-        this.vm.applySpeedToVideo(this.holdVideo, priorSpeed, { remember: true });
+        this.vm.applySpeedToVideo(this.holdVideo, 1.0, { remember: true });
         this.holdBaseSpeed = this.vm.getRememberedSpeed(video);
       }
       this.holdVideo = video;
