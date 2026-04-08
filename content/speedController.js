@@ -51,6 +51,16 @@
       return this.previousSpeed;
     }
 
+    /**
+     * Force-restore the speed captured before Space turbo activation.
+     * Used as a robust keyup/cleanup path even if turbo was toggled off mid-hold.
+     */
+    restorePreviousSpeed() {
+      this.currentSpeed = this.previousSpeed;
+      this.isTurboActive = false;
+      return this.currentSpeed;
+    }
+
     setSpeed(speed) {
       this.currentSpeed = this.clamp(parseFloat(speed.toFixed(2)));
       if (this.isTurboActive) {

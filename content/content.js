@@ -50,13 +50,15 @@
   chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     switch (msg.type) {
       case 'SET_SPEED': {
+        const target = vm.getActiveVideoOrFirst();
         const speed = sc.setSpeed(msg.speed);
-        vm.applySpeed(speed);
+        if (target) vm.applySpeedToVideo(target, speed, { remember: true });
         break;
       }
       case 'RESET_SPEED': {
+        const target = vm.getActiveVideoOrFirst();
         const speed = sc.reset();
-        vm.applySpeed(speed);
+        if (target) vm.applySpeedToVideo(target, speed, { remember: true });
         break;
       }
       case 'TOGGLE': {
@@ -76,7 +78,9 @@
         break;
       }
       case 'QUERY_SPEED': {
-        sendResponse({ speed: sc.currentSpeed });
+        const target = vm.getActiveVideoOrFirst();
+        const speed = target ? vm.getRememberedSpeed(target) : sc.currentSpeed;
+        sendResponse({ speed });
         break;
       }
     }
