@@ -1,0 +1,27 @@
+.usc-speed-badge {
+  position: absolute;
+  z-index: 2147483647;
+  background: rgba(0, 0, 0, 0.75);
+  color: #ffffff;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0;
+  transition: opacity 0.15s ease, transform 0.1s ease;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+/* Show badge when speed is not 1× or during a flash */
+.usc-speed-badge.usc-flash,
+.usc-speed-badge[data-active="true"] {
+  opacity: 1;
+}
+
+.usc-speed-badge.usc-flash {
+  transform: scale(1.1);
+}

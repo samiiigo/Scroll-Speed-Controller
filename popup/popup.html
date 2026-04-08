@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="popup.css">
+  <title>Speed Controller</title>
+</head>
+<body>
+  <header>
+    <div class="title-row">
+      <span class="logo">⚡</span>
+      <h1>Speed Controller</h1>
+      <label class="toggle" title="Enable / Disable">
+        <input type="checkbox" id="toggle-enabled" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+  </header>
+
+  <main>
+    <section class="speed-display">
+      <div class="label">Current Speed</div>
+      <div class="speed-value" id="current-speed">1.00×</div>
+    </section>
+
+    <section class="presets">
+      <button class="preset-btn" data-speed="0.5">0.5×</button>
+      <button class="preset-btn" data-speed="1.0">1.0×</button>
+      <button class="preset-btn" data-speed="1.5">1.5×</button>
+      <button class="preset-btn" data-speed="2.0">2.0×</button>
+    </section>
+
+    <section class="settings-group">
+      <div class="setting-row">
+        <span class="setting-label">Turbo Speed</span>
+        <select id="turbo-speed">
+          <option value="1.25">1.25×</option>
+          <option value="1.5">1.50×</option>
+          <option value="1.75">1.75×</option>
+          <option value="2.0" selected>2.00×</option>
+          <option value="2.5">2.50×</option>
+          <option value="3.0">3.00×</option>
+          <option value="4.0">4.00×</option>
+          <option value="5.0">5.00×</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">Scroll Step</span>
+        <select id="scroll-step">
+          <option value="0.01">0.01</option>
+          <option value="0.05">0.05</option>
+          <option value="0.10" selected>0.10</option>
+          <option value="0.25">0.25</option>
+          <option value="0.50">0.50</option>
+        </select>
+      </div>
+    </section>
+
+    <button class="reset-btn" id="reset-speed">Reset Speed</button>
+  </main>
+
+  <script src="popup.js"></script>
+</body>
+</html>
