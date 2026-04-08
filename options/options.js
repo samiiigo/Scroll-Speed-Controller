@@ -20,12 +20,12 @@
     'showBadge', 'badgePosition', 'siteBlacklist',
   ]);
 
-  if (stored.scrollStep !== undefined)    $scrollStep.value    = stored.scrollStep;
-  if (stored.turboSpeed !== undefined)    $turboSpeed.value    = stored.turboSpeed;
-  if (stored.autoReset !== undefined)     $autoReset.checked   = stored.autoReset;
-  if (stored.showBadge !== undefined)     $showBadge.checked   = stored.showBadge;
-  if (stored.badgePosition !== undefined) $badgePosition.value = stored.badgePosition;
-  if (stored.siteBlacklist !== undefined) $blacklist.value     = stored.siteBlacklist;
+  if (Number.isFinite(stored.scrollStep))     $scrollStep.value    = stored.scrollStep;
+  if (Number.isFinite(stored.turboSpeed))     $turboSpeed.value    = stored.turboSpeed;
+  if (typeof stored.autoReset === 'boolean')  $autoReset.checked   = stored.autoReset;
+  if (typeof stored.showBadge === 'boolean')  $showBadge.checked   = stored.showBadge;
+  if (typeof stored.badgePosition === 'string') $badgePosition.value = stored.badgePosition;
+  if (typeof stored.siteBlacklist === 'string') $blacklist.value     = stored.siteBlacklist;
 
   // ── Auto-save on change ──
 

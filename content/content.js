@@ -9,17 +9,21 @@
   const { SpeedController, VideoManager, InputController } = window.USC;
 
   // Check the site blacklist before doing anything
-  const { enabled = true, turboSpeed = 2.0, scrollStep = 0.10,
-          showBadge = true, badgePosition = 'top-left',
-          siteBlacklist = '', autoReset = false } =
-    await chrome.storage.sync.get([
-      'enabled', 'turboSpeed', 'scrollStep',
-      'showBadge', 'badgePosition', 'siteBlacklist', 'autoReset',
-    ]);
+  const stored = await chrome.storage.sync.get([
+    'enabled', 'turboSpeed', 'scrollStep',
+    'showBadge', 'badgePosition', 'siteBlacklist', 'autoReset',
+  ]);
+
+  const enabled       = stored.enabled !== false;
+  const turboSpeed    = Number.isFinite(stored.turboSpeed) ? stored.turboSpeed : 2.0;
+  const scrollStep    = Number.isFinite(stored.scrollStep) ? stored.scrollStep : 0.10;
+  const showBadge     = stored.showBadge !== false;
+  const badgePosition = typeof stored.badgePosition === 'string' ? stored.badgePosition : 'top-left';
+  const siteBlacklist = typeof stored.siteBlacklist === 'string' ? stored.siteBlacklist : '';
+  const autoReset     = stored.autoReset === true;
 
   if (!enabled) return;
 
-  // Honour per-site blacklist (comma-separated domains)
   if (siteBlacklist) {
     const blocked = siteBlacklist.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
     const host = location.hostname.toLowerCase();
@@ -50,8 +54,10 @@
   chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     switch (msg.type) {
       case 'SET_SPEED': {
+        const raw = Number(msg.speed);
+        if (!Number.isFinite(raw)) break;
         const target = vm.getActiveVideoOrFirst();
-        const speed = sc.setSpeed(msg.speed);
+        const speed = sc.setSpeed(raw);
         if (target) vm.applySpeedToVideo(target, speed, { remember: true });
         break;
       }
@@ -72,9 +78,9 @@
         break;
       }
       case 'UPDATE_SETTINGS': {
-        if (msg.turboSpeed !== undefined) sc.TURBO_SPEED = msg.turboSpeed;
-        if (msg.scrollStep !== undefined) sc.scrollStep = msg.scrollStep;
-        if (msg.showBadge !== undefined) vm.updateBadgeVisibility(msg.showBadge);
+        if (Number.isFinite(msg.turboSpeed)) sc.TURBO_SPEED = msg.turboSpeed;
+        if (Number.isFinite(msg.scrollStep)) sc.scrollStep = msg.scrollStep;
+        if (typeof msg.showBadge === 'boolean') vm.updateBadgeVisibility(msg.showBadge);
         break;
       }
       case 'QUERY_SPEED': {
@@ -88,8 +94,14 @@
 
   // React to storage changes in real time (e.g. from options page)
   chrome.storage.onChanged.addListener((changes) => {
-    if (changes.turboSpeed) sc.TURBO_SPEED = changes.turboSpeed.newValue;
-    if (changes.scrollStep) sc.scrollStep = changes.scrollStep.newValue;
-    if (changes.showBadge) vm.updateBadgeVisibility(changes.showBadge.newValue);
+    if (changes.turboSpeed && Number.isFinite(changes.turboSpeed.newValue)) {
+      sc.TURBO_SPEED = changes.turboSpeed.newValue;
+    }
+    if (changes.scrollStep && Number.isFinite(changes.scrollStep.newValue)) {
+      sc.scrollStep = changes.scrollStep.newValue;
+    }
+    if (changes.showBadge && typeof changes.showBadge.newValue === 'boolean') {
+      vm.updateBadgeVisibility(changes.showBadge.newValue);
+    }
   });
 })();

@@ -11,6 +11,7 @@
     constructor(options = {}) {
       this.videos = new Set();
       this.videoSpeeds = new WeakMap();
+      this.videoBadges = new WeakMap();
       this.lastInteractedVideo = null;
       this.observer = null;
       this.showBadge = options.showBadge !== false;
@@ -121,19 +122,15 @@
     }
 
     _handleSPANavigation() {
-      // YouTube fires a custom event on SPA navigation
-      window.addEventListener('yt-navigate-finish', () => {
+      const rescan = () => {
         document.querySelectorAll('.usc-speed-badge').forEach(b => b.remove());
         this.videos.clear();
         this._scanForVideos();
-      });
-
-      // Generic SPA fallback via History API
-      const original = history.pushState.bind(history);
-      history.pushState = (...args) => {
-        original(...args);
-        setTimeout(() => this._scanForVideos(), 800);
       };
+
+      window.addEventListener('yt-navigate-finish', rescan);
+      window.addEventListener('popstate', () => setTimeout(() => this._scanForVideos(), 800));
+      window.addEventListener('hashchange', () => setTimeout(() => this._scanForVideos(), 800));
     }
 
     _injectOverlay(video) {
@@ -143,9 +140,12 @@
 
       this._applyBadgePosition(badge);
 
-      const uid = Math.random().toString(36).slice(2);
+      const uid = typeof crypto.randomUUID === 'function'
+        ? crypto.randomUUID()
+        : Math.random().toString(36).slice(2);
       badge.dataset.videoId = uid;
-      video.dataset.uscId = uid;
+
+      this.videoBadges.set(video, badge);
 
       const parent = video.parentElement;
       if (parent) {
@@ -187,9 +187,8 @@
     }
 
     _updateOverlayForVideo(video, speed) {
-      const id = video?.dataset?.uscId;
-      if (!id) return;
-      const badge = document.querySelector(`.usc-speed-badge[data-video-id="${id}"]`);
+      if (!video) return;
+      const badge = this.videoBadges.get(video);
       if (!badge) return;
       badge.textContent = `${speed.toFixed(2)}×`;
       if (speed !== 1.0) {
@@ -215,6 +214,7 @@
       this.videos.clear();
       this.lastInteractedVideo = null;
       this.videoSpeeds = new WeakMap();
+      this.videoBadges = new WeakMap();
     }
   }
 
