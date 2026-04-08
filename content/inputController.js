@@ -20,6 +20,7 @@
       this._onKeyDown = this._onKeyDown.bind(this);
       this._onKeyUp = this._onKeyUp.bind(this);
       this._onWheel = this._onWheel.bind(this);
+      this._onBlur = this._onBlur.bind(this);
     }
 
     attach() {
@@ -28,6 +29,7 @@
       document.addEventListener('keydown', this._onKeyDown, { capture: true });
       document.addEventListener('keyup', this._onKeyUp, { capture: true });
       window.addEventListener('wheel', this._onWheel, { passive: false });
+      window.addEventListener('blur', this._onBlur);
     }
 
     detach() {
@@ -36,11 +38,13 @@
       document.removeEventListener('keydown', this._onKeyDown, true);
       document.removeEventListener('keyup', this._onKeyUp, true);
       window.removeEventListener('wheel', this._onWheel);
+      window.removeEventListener('blur', this._onBlur);
 
-      // Clean up state in case space was held when detaching
       if (this.spaceHeld) {
         this.spaceHeld = false;
-        this.sc.deactivateTurbo();
+        this.scrolledDuringHold = false;
+        const speed = this.sc.deactivateTurbo();
+        this.vm.applySpeed(speed);
       }
     }
 
@@ -103,6 +107,16 @@
 
       const speed = this.sc.adjustByScroll(e.deltaY);
       this.vm.applySpeed(speed);
+    }
+
+    _onBlur() {
+      if (!this.spaceHeld) return;
+      this.spaceHeld = false;
+      this.scrolledDuringHold = false;
+      if (this.sc.isTurboActive) {
+        const speed = this.sc.deactivateTurbo();
+        this.vm.applySpeed(speed);
+      }
     }
   }
 

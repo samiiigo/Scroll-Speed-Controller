@@ -37,6 +37,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (!tabs[0]) return sendResponse({ speed: 1.0 });
       chrome.tabs.sendMessage(tabs[0].id, { type: 'QUERY_SPEED' }, (resp) => {
+        if (chrome.runtime.lastError) return sendResponse({ speed: 1.0 });
         sendResponse(resp || { speed: 1.0 });
       });
     });
@@ -45,7 +46,11 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
   if (msg.type === 'RELAY_TO_TAB') {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs[0]) chrome.tabs.sendMessage(tabs[0].id, msg.payload);
+      if (tabs[0]) {
+        chrome.tabs.sendMessage(tabs[0].id, msg.payload, () => {
+          void chrome.runtime.lastError;
+        });
+      }
     });
   }
 });

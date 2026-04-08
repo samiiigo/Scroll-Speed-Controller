@@ -68,6 +68,7 @@
     _handleSPANavigation() {
       // YouTube fires a custom event on SPA navigation
       window.addEventListener('yt-navigate-finish', () => {
+        document.querySelectorAll('.usc-speed-badge').forEach(b => b.remove());
         this.videos.clear();
         this._scanForVideos();
       });
@@ -119,11 +120,14 @@
       badges.forEach(badge => {
         badge.textContent = `${speed.toFixed(2)}×`;
 
-        // Keep badge visible while speed is not 1x
-        badge.dataset.active = speed !== 1.0 ? 'true' : 'false';
-
-        badge.classList.add('usc-flash');
-        setTimeout(() => badge.classList.remove('usc-flash'), 400);
+        if (speed !== 1.0) {
+          badge.dataset.active = 'true';
+          badge.classList.add('usc-flash');
+          setTimeout(() => badge.classList.remove('usc-flash'), 400);
+        } else {
+          badge.dataset.active = 'false';
+          badge.classList.remove('usc-flash');
+        }
       });
     }
 

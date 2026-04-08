@@ -30,18 +30,30 @@
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (tab?.id) {
-      chrome.tabs.sendMessage(tab.id, { type: 'QUERY_SPEED' }, (resp) => {
-        if (chrome.runtime.lastError) return; // no content script on this page
-        if (resp?.speed != null) updateSpeedDisplay(resp.speed);
-      });
+      const resp = await safeSendToTab(tab.id, { type: 'QUERY_SPEED' });
+      if (resp?.speed != null) updateSpeedDisplay(resp.speed);
     }
   } catch (_) { /* ignore tabs that can't be queried */ }
 
   // ── Helpers ──
 
+  /**
+   * MV3 chrome.tabs.sendMessage returns a rejecting Promise when no content
+   * script is listening (e.g. chrome:// pages, tabs loaded before the
+   * extension).  Swallow that rejection so it never surfaces as an
+   * "Uncaught (in promise)" error in the popup console.
+   */
+  async function safeSendToTab(tabId, payload) {
+    try {
+      return await chrome.tabs.sendMessage(tabId, payload);
+    } catch (_) {
+      return undefined;
+    }
+  }
+
   function sendToTab(payload) {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs[0]?.id) chrome.tabs.sendMessage(tabs[0].id, payload);
+      if (tabs[0]?.id) safeSendToTab(tabs[0].id, payload);
     });
   }
 
