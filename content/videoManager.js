@@ -43,6 +43,7 @@
       this.videos.forEach(video => {
         try {
           video.playbackRate = speed;
+          this.videoSpeeds.set(video, speed);
         } catch (_) {
           toRemove.push(video);
         }
