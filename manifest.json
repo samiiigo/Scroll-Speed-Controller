@@ -3,7 +3,7 @@
   "name": "Universal Video Speed Controller",
   "version": "1.0.0",
   "description": "Scroll + Spacebar to control video speed on any HTML5 site",
-  "permissions": ["storage", "activeTab", "scripting"],
+  "permissions": ["storage", "activeTab"],
   "host_permissions": ["*://*/*"],
   "background": {
     "service_worker": "background.js"
@@ -35,5 +35,8 @@
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
   }
 }

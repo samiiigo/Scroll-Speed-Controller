@@ -45,6 +45,11 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
 
   if (msg.type === 'RELAY_TO_TAB') {
+    const ALLOWED_RELAY_TYPES = [
+      'SET_SPEED', 'RESET_SPEED', 'TOGGLE', 'UPDATE_SETTINGS', 'QUERY_SPEED',
+    ];
+    if (!msg.payload?.type || !ALLOWED_RELAY_TYPES.includes(msg.payload.type)) return;
+
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs[0]) {
         chrome.tabs.sendMessage(tabs[0].id, msg.payload, () => {
