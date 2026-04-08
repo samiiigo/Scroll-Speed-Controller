@@ -46,7 +46,7 @@
           video.playbackRate = speed;
           this.videoSpeeds.set(video, speed);
         } catch (_) {
-          toRemove.push(video);
+          if (!video.isConnected) toRemove.push(video);
         }
       });
       toRemove.forEach(v => this.videos.delete(v));
@@ -65,7 +65,9 @@
       try {
         video.playbackRate = speed;
       } catch (_) {
-        this.videos.delete(video);
+        if (!video.isConnected) {
+          this.videos.delete(video);
+        }
         return;
       }
       if (remember) this.videoSpeeds.set(video, speed);

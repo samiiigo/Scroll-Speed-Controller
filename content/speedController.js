@@ -7,7 +7,7 @@
 
   const USC = window.USC = window.USC || {};
 
-  const SPEED_MIN = 0.01;
+  const SPEED_MIN = 0.10;
   const SPEED_MAX = 5.00;
 
   class SpeedController {
