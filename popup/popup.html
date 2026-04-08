@@ -1,63 +1,94 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="dark" lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="popup.css">
-  <title>Speed Controller</title>
+  <title>SpeedPulse</title>
 </head>
-<body>
-  <header>
-    <div class="title-row">
-      <span class="logo">⚡</span>
-      <h1>Speed Controller</h1>
-      <label class="toggle" title="Enable / Disable">
-        <input type="checkbox" id="toggle-enabled" checked>
-        <span class="toggle-slider"></span>
+<body class="bg-surface text-on-surface select-none overflow-hidden">
+  <header class="popup-header">
+    <div class="popup-brand">
+      <span class="icon-bolt" aria-hidden="true"></span>
+      <span>SpeedPulse</span>
+    </div>
+    <div class="toggle-wrap">
+      <input type="checkbox" id="toggle-enabled" class="sr-only" checked>
+      <label for="toggle-enabled" class="toggle-pill" title="Enable / disable extension">
+        <span class="toggle-status when-on">Active</span>
+        <span class="toggle-status when-off">Off</span>
+        <span class="toggle-track">
+          <span class="toggle-knob"></span>
+        </span>
       </label>
     </div>
   </header>
 
-  <main>
-    <section class="speed-display">
-      <div class="label">Current Speed</div>
-      <div class="speed-value" id="current-speed">1.00×</div>
-    </section>
-
-    <section class="presets">
-      <button class="preset-btn" data-speed="0.5">0.5×</button>
-      <button class="preset-btn" data-speed="1.0">1.0×</button>
-      <button class="preset-btn" data-speed="1.5">1.5×</button>
-      <button class="preset-btn" data-speed="2.0">2.0×</button>
-    </section>
-
-    <section class="settings-group">
-      <div class="setting-row">
-        <span class="setting-label">Turbo Speed</span>
-        <select id="turbo-speed">
-          <option value="1.25">1.25×</option>
-          <option value="1.5">1.50×</option>
-          <option value="1.75">1.75×</option>
-          <option value="2.0" selected>2.00×</option>
-          <option value="2.5">2.50×</option>
-          <option value="3.0">3.00×</option>
-          <option value="4.0">4.00×</option>
-          <option value="5.0">5.00×</option>
-        </select>
+  <main class="popup-main">
+    <section class="hero-readout">
+      <div class="hero-readout-glow" aria-hidden="true"></div>
+      <span class="hero-label">Current Speed</span>
+      <div class="hero-speed">
+        <span id="current-speed-num">1.00</span><span class="hero-speed-x">×</span>
       </div>
-      <div class="setting-row">
-        <span class="setting-label">Scroll Step</span>
-        <select id="scroll-step">
-          <option value="0.01">0.01</option>
-          <option value="0.05">0.05</option>
-          <option value="0.10" selected>0.10</option>
-          <option value="0.25">0.25</option>
-          <option value="0.50">0.50</option>
-        </select>
+      <div class="hero-badge">
+        <span class="hero-dot" aria-hidden="true"></span>
+        <span class="hero-badge-text">Precision Calibrated</span>
       </div>
     </section>
 
-    <button class="reset-btn" id="reset-speed">Reset Speed</button>
+    <section class="presets-grid">
+      <button type="button" class="preset-btn" data-speed="0.5">0.5×</button>
+      <button type="button" class="preset-btn" data-speed="1.0">1.0×</button>
+      <button type="button" class="preset-btn" data-speed="1.5">1.5×</button>
+      <button type="button" class="preset-btn" data-speed="2.0">2.0×</button>
+    </section>
+
+    <section class="settings-card">
+      <div class="setting-row">
+        <div class="setting-copy">
+          <span class="setting-title">Turbo Speed</span>
+          <span class="setting-sub">Maximum throttle limit</span>
+        </div>
+        <div class="select-wrap">
+          <select id="turbo-speed" class="setting-select" aria-label="Turbo speed">
+            <option value="1.25">1.25×</option>
+            <option value="1.5">1.50×</option>
+            <option value="1.75">1.75×</option>
+            <option value="2.0">2.00×</option>
+            <option value="2.5">2.50×</option>
+            <option value="3.0">3.00×</option>
+            <option value="4.0">4.00×</option>
+            <option value="5.0" selected>5.00×</option>
+          </select>
+          <span class="select-chevron" aria-hidden="true"></span>
+        </div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-copy">
+          <span class="setting-title">Scroll Step</span>
+          <span class="setting-sub">Increment sensitivity</span>
+        </div>
+        <div class="select-wrap">
+          <select id="scroll-step" class="setting-select" aria-label="Scroll step">
+            <option value="0.01">0.01</option>
+            <option value="0.05">0.05</option>
+            <option value="0.10">0.10</option>
+            <option value="0.25" selected>0.25</option>
+            <option value="0.50">0.50</option>
+          </select>
+          <span class="select-chevron" aria-hidden="true"></span>
+        </div>
+      </div>
+    </section>
+
+    <footer class="popup-footer">
+      <button type="button" class="reset-btn gradient-cta" id="reset-speed">
+        <span class="icon-refresh" aria-hidden="true"></span>
+        <span>Reset Speed</span>
+      </button>
+      <div class="footer-version" id="popup-version">Precision Utility</div>
+    </footer>
   </main>
 
   <script src="popup.js"></script>

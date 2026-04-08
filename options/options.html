@@ -1,224 +1,137 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="dark" lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Speed Controller — Settings</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      background: #1a1a2e;
-      color: #e0e0e0;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      padding: 40px 20px;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 540px;
-    }
-
-    h1 {
-      font-size: 22px;
-      font-weight: 700;
-      color: #fff;
-      margin-bottom: 8px;
-    }
-
-    .subtitle {
-      font-size: 13px;
-      color: #888;
-      margin-bottom: 28px;
-    }
-
-    .card {
-      background: #16213e;
-      border-radius: 10px;
-      padding: 20px;
-      margin-bottom: 16px;
-    }
-
-    .card h2 {
-      font-size: 14px;
-      font-weight: 600;
-      color: #1a73e8;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      margin-bottom: 16px;
-    }
-
-    .field {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 0;
-    }
-
-    .field + .field {
-      border-top: 1px solid #0f3460;
-    }
-
-    .field-label {
-      font-size: 14px;
-    }
-
-    .field-hint {
-      font-size: 11px;
-      color: #666;
-      margin-top: 2px;
-    }
-
-    input[type="number"],
-    input[type="text"],
-    select {
-      padding: 6px 10px;
-      border: 1px solid #333;
-      border-radius: 6px;
-      background: #1a1a2e;
-      color: #e0e0e0;
-      font-size: 14px;
-      outline: none;
-      width: 160px;
-    }
-
-    input:focus, select:focus {
-      border-color: #1a73e8;
-    }
-
-    input[type="text"] {
-      width: 220px;
-    }
-
-    /* Toggle switch */
-    .toggle {
-      position: relative;
-      display: inline-block;
-      width: 40px;
-      height: 22px;
-      cursor: pointer;
-    }
-    .toggle input { opacity: 0; width: 0; height: 0; }
-    .toggle-slider {
-      position: absolute;
-      inset: 0;
-      background: #444;
-      border-radius: 22px;
-      transition: background 0.2s;
-    }
-    .toggle-slider::before {
-      content: '';
-      position: absolute;
-      top: 3px; left: 3px;
-      width: 16px; height: 16px;
-      background: #fff;
-      border-radius: 50%;
-      transition: transform 0.2s;
-    }
-    .toggle input:checked + .toggle-slider { background: #1a73e8; }
-    .toggle input:checked + .toggle-slider::before { transform: translateX(18px); }
-
-    /* Save confirmation */
-    .toast {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%) translateY(60px);
-      background: #1a73e8;
-      color: #fff;
-      padding: 10px 24px;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 600;
-      opacity: 0;
-      transition: transform 0.25s ease, opacity 0.25s ease;
-      pointer-events: none;
-    }
-    .toast.visible {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-  </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SpeedPulse — Universal Video Speed Controller</title>
+  <link rel="stylesheet" href="options.css" />
 </head>
 <body>
-  <div class="container">
-    <h1>⚡ Universal Video Speed Controller</h1>
-    <p class="subtitle">Advanced settings — changes are saved automatically.</p>
+  <div class="page">
+    <header class="topbar">
+      <div class="brand">
+        <svg class="brand-icon" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
+          <path d="M11 21h-1l1-7H7.5c-.58 0-.57-.32-.38-.66.19-.34.05-.08.07-.12C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-.07.15C12.96 17.55 11 21 11 21z"/>
+        </svg>
+        <span>SpeedPulse</span>
+      </div>
+      <div class="topbar-actions">
+        <button type="button" class="icon-btn" id="help-btn" aria-label="Help" title="How it works: hold Space, scroll to adjust speed">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/>
+          </svg>
+        </button>
+      </div>
+    </header>
 
-    <div class="card">
-      <h2>Speed Controls</h2>
+    <main>
+      <section>
+        <h1 class="page-title">Universal Video Speed Controller</h1>
+        <p class="page-sub">Advanced settings — changes are saved automatically.</p>
+      </section>
 
-      <div class="field">
-        <div>
-          <div class="field-label">Scroll Step Size</div>
-          <div class="field-hint">Speed change per scroll tick (0.01 – 0.50)</div>
+      <!-- Speed controls -->
+      <div class="card">
+        <span class="card-label">Speed controls</span>
+        <div class="field-block">
+          <div class="field-row">
+            <label class="field-label" for="scroll-step">Scroll Step Size</label>
+            <input
+              class="input-num"
+              id="scroll-step"
+              type="number"
+              min="0.01"
+              max="0.50"
+              step="0.01"
+              value="0.25"
+            />
+          </div>
+          <p class="field-hint">Speed change per scroll tick (0.01 – 0.50)</p>
         </div>
-        <input type="number" id="scroll-step" min="0.01" max="0.50" step="0.01" value="0.10">
+
+        <div class="field-block">
+          <div class="field-row">
+            <label class="field-label" for="turbo-speed">Turbo Speed</label>
+            <input
+              class="input-num"
+              id="turbo-speed"
+              type="number"
+              min="1.25"
+              max="5.00"
+              step="0.25"
+              value="5.00"
+            />
+          </div>
+          <p class="field-hint">Speed when holding Spacebar (1.25 – 5.00)</p>
+        </div>
+
+        <div class="field-block toggle-field">
+          <div class="field-row">
+            <span class="field-label">Auto-reset on Navigation</span>
+            <label class="switch">
+              <input type="checkbox" id="auto-reset" />
+              <span class="switch-track"></span>
+              <span class="switch-thumb"></span>
+            </label>
+          </div>
+          <p class="field-hint">Revert to 1× when navigating between videos</p>
+        </div>
       </div>
 
-      <div class="field">
-        <div>
-          <div class="field-label">Turbo Speed</div>
-          <div class="field-hint">Speed when holding Spacebar (1.25 – 5.00)</div>
+      <!-- Overlay -->
+      <div class="card">
+        <span class="card-label">Overlay</span>
+        <div class="field-block">
+          <div class="field-row">
+            <span class="field-label">Show Speed Badge</span>
+            <label class="switch">
+              <input type="checkbox" id="show-badge" checked />
+              <span class="switch-track"></span>
+              <span class="switch-thumb"></span>
+            </label>
+          </div>
         </div>
-        <input type="number" id="turbo-speed" min="1.25" max="5.00" step="0.25" value="2.00">
+
+        <div class="field-block">
+          <label class="field-label" for="badge-position">Badge Position</label>
+          <div class="select-wrap">
+            <select class="select custom-scrollbar" id="badge-position">
+              <option value="top-left">Top Left</option>
+              <option value="top-right" selected>Top Right</option>
+              <option value="bottom-left">Bottom Left</option>
+              <option value="bottom-right">Bottom Right</option>
+            </select>
+          </div>
+        </div>
       </div>
 
-      <div class="field">
-        <div>
-          <div class="field-label">Auto-reset on Navigation</div>
-          <div class="field-hint">Revert to 1× when navigating between videos</div>
-        </div>
-        <label class="toggle">
-          <input type="checkbox" id="auto-reset">
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>Overlay</h2>
-
-      <div class="field">
-        <div>
-          <div class="field-label">Show Speed Badge</div>
-          <div class="field-hint">Display speed indicator on videos</div>
-        </div>
-        <label class="toggle">
-          <input type="checkbox" id="show-badge" checked>
-          <span class="toggle-slider"></span>
-        </label>
+      <!-- Blacklist -->
+      <div class="card">
+        <span class="card-label">Site blacklist</span>
+        <label class="blacklist-label" for="site-blacklist">Disabled Domains</label>
+        <textarea
+          class="textarea custom-scrollbar"
+          id="site-blacklist"
+          rows="3"
+          placeholder="example.com, test.org"
+          spellcheck="false"
+        ></textarea>
+        <p class="blacklist-hint">Comma-separated list, e.g. example.com, test.org</p>
       </div>
 
-      <div class="field">
-        <div>
-          <div class="field-label">Badge Position</div>
-        </div>
-        <select id="badge-position">
-          <option value="top-left">Top Left</option>
-          <option value="top-right">Top Right</option>
-          <option value="bottom-left">Bottom Left</option>
-          <option value="bottom-right">Bottom Right</option>
-        </select>
+      <div class="pulse-row" aria-hidden="true">
+        <span class="pulse-dot"></span>
+        <span class="pulse-label">Active Engine</span>
       </div>
-    </div>
-
-    <div class="card">
-      <h2>Site Blacklist</h2>
-      <div class="field">
-        <div>
-          <div class="field-label">Disabled Domains</div>
-          <div class="field-hint">Comma-separated list, e.g. example.com, test.org</div>
-        </div>
-        <input type="text" id="site-blacklist" placeholder="example.com, test.org">
-      </div>
-    </div>
+    </main>
   </div>
 
-  <div class="toast" id="toast">Settings saved</div>
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <svg class="toast-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+    </svg>
+    <span class="toast-text">Settings saved</span>
+  </div>
 
   <script src="options.js"></script>
 </body>

@@ -15,8 +15,8 @@
       this.currentSpeed = 1.0;
       this.previousSpeed = 1.0;
       this.isTurboActive = false;
-      this.scrollStep = 0.10;
-      this.TURBO_SPEED = 2.0;
+      this.scrollStep = 0.25;
+      this.TURBO_SPEED = 5.0;
     }
 
     clamp(value) {

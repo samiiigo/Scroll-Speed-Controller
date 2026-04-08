@@ -5,12 +5,17 @@
 (async function () {
   'use strict';
 
-  const $speed    = document.getElementById('current-speed');
+  const $speedNum = document.getElementById('current-speed-num');
   const $toggle   = document.getElementById('toggle-enabled');
   const $turbo    = document.getElementById('turbo-speed');
   const $step     = document.getElementById('scroll-step');
   const $reset    = document.getElementById('reset-speed');
   const $presets  = document.querySelectorAll('.preset-btn');
+  const $version  = document.getElementById('popup-version');
+
+  if ($version && chrome.runtime?.getManifest) {
+    $version.textContent = `Precision Utility v${chrome.runtime.getManifest().version}`;
+  }
 
   // ── Load persisted settings ──
 
@@ -58,7 +63,7 @@
   }
 
   function updateSpeedDisplay(speed) {
-    $speed.textContent = `${Number(speed).toFixed(2)}×`;
+    if ($speedNum) $speedNum.textContent = Number(speed).toFixed(2);
 
     $presets.forEach(btn => {
       const match = Math.abs(parseFloat(btn.dataset.speed) - speed) < 0.001;

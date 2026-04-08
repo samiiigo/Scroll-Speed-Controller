@@ -15,8 +15,8 @@
   ]);
 
   const enabled       = stored.enabled !== false;
-  const turboSpeed    = Number.isFinite(stored.turboSpeed) ? stored.turboSpeed : 2.0;
-  const scrollStep    = Number.isFinite(stored.scrollStep) ? stored.scrollStep : 0.10;
+  const turboSpeed    = Number.isFinite(stored.turboSpeed) ? stored.turboSpeed : 5.0;
+  const scrollStep    = Number.isFinite(stored.scrollStep) ? stored.scrollStep : 0.25;
   const showBadge     = stored.showBadge !== false;
   const badgePosition = typeof stored.badgePosition === 'string' ? stored.badgePosition : 'top-left';
   const siteBlacklist = typeof stored.siteBlacklist === 'string' ? stored.siteBlacklist : '';

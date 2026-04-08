@@ -8,8 +8,8 @@
 
 const DEFAULTS = {
   enabled: true,
-  turboSpeed: 2.0,
-  scrollStep: 0.10,
+  turboSpeed: 5.0,
+  scrollStep: 0.25,
   showBadge: true,
   badgePosition: 'top-left',
   siteBlacklist: '',
