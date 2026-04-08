@@ -135,13 +135,6 @@
 
       this.scrolledDuringHold = true;
 
-      // On first scroll during hold, revert turbo so adjustments start from the
-      // user's base speed rather than the turbo speed.
-      if (this.sc.isTurboActive) {
-        this.sc.currentSpeed = this.holdBaseSpeed;
-        this.sc.isTurboActive = false;
-      }
-
       const speed = this.sc.adjustByScroll(e.deltaY);
       this.vm.applySpeedToVideo(video, speed, { remember: true });
     }
