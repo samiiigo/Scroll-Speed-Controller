@@ -127,7 +127,7 @@
 
     _handleSPANavigation() {
       const rescan = () => {
-        document.querySelectorAll('.usc-speed-badge').forEach(b => b.remove());
+        document.querySelectorAll('.usc-speed-badge, .usc-skip-badge').forEach(b => b.remove());
         this.videos.clear();
         this._scanForVideos();
       };
@@ -270,7 +270,11 @@
     seek(video, delta) {
       if (!video) return;
       video.currentTime += delta;
-      this._showSkipAnimation(video, delta);
+      
+      // Only show the pop animation for larger skips (5s or 10s), to avoid spamming on 1s fine-scrolls.
+      if (Math.abs(delta) >= 5) {
+        this._showSkipAnimation(video, delta);
+      }
     }
 
     _showSkipAnimation(video, delta) {
