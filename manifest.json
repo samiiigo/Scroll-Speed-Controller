@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Universal Video Speed Controller",
-  "version": "1.2.1",
+  "version": "1.2.5",
   "description": "Scroll + Spacebar to control video speed on any HTML5 site",
   "permissions": [
     "storage",

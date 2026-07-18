@@ -270,7 +270,7 @@
     }
 
     seekToPercentage(video, percent) {
-      if (!video || !video.duration) return;
+      if (!video || !video.duration || !isFinite(video.duration)) return;
       video.currentTime = (percent / 100) * video.duration;
     }
 

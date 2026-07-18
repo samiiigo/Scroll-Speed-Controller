@@ -176,6 +176,7 @@
         case 'End': this.vm.seekToPercentage(video, 100); break;
         case 'Comma':
           if (e.shiftKey) {
+            this.sc.currentSpeed = video.playbackRate;
             const speed = this.sc.stepSpeed(-1);
             this.vm.applySpeedToVideo(video, speed, { remember: true });
           } else {
@@ -184,6 +185,7 @@
           break;
         case 'Period':
           if (e.shiftKey) {
+            this.sc.currentSpeed = video.playbackRate;
             const speed = this.sc.stepSpeed(1);
             this.vm.applySpeedToVideo(video, speed, { remember: true });
           } else {
@@ -191,13 +193,10 @@
           }
           break;
         default:
-          if (e.code.startsWith('Digit')) {
-            const digit = parseInt(e.code.replace('Digit', ''), 10);
-            if (!isNaN(digit)) {
-              this.vm.seekToPercentage(video, digit === 0 ? 0 : digit * 10);
-            } else {
-              handled = false;
-            }
+          const match = e.code.match(/^(?:Digit|Numpad)(\d)$/);
+          if (match) {
+            const digit = parseInt(match[1], 10);
+            this.vm.seekToPercentage(video, digit * 10);
           } else {
             handled = false;
           }
