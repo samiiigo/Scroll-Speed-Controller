@@ -12,10 +12,12 @@
       this.videos = new Set();
       this.videoSpeeds = new WeakMap();
       this.videoBadges = new WeakMap();
+      this.videoSkipBadges = new WeakMap();
       this.lastInteractedVideo = null;
       this.observer = null;
       this.showBadge = options.showBadge !== false;
       this.badgePosition = options.badgePosition || 'top-left';
+      this.videoStates = new WeakMap();
     }
 
     init() {
@@ -125,7 +127,7 @@
 
     _handleSPANavigation() {
       const rescan = () => {
-        document.querySelectorAll('.usc-speed-badge').forEach(b => b.remove());
+        document.querySelectorAll('.usc-speed-badge, .usc-skip-badge').forEach(b => b.remove());
         this.videos.clear();
         this._scanForVideos();
       };
@@ -217,7 +219,209 @@
       this.lastInteractedVideo = null;
       this.videoSpeeds = new WeakMap();
       this.videoBadges = new WeakMap();
+      this.videoSkipBadges = new WeakMap();
+      this.videoStates = new WeakMap();
+      document.querySelectorAll('.usc-skip-badge').forEach(b => b.remove());
     }
+
+    _getVideoState(video) {
+      if (!this.videoStates.has(video)) {
+        this.videoStates.set(video, { zoom: 1, brightness: 1 });
+      }
+      return this.videoStates.get(video);
+    }
+
+    _applyVisuals(video) {
+      const state = this._getVideoState(video);
+      let filter = '';
+      let transform = '';
+      if (state.brightness !== 1) filter += `brightness(${state.brightness}) `;
+      if (state.zoom !== 1) transform += `scale(${state.zoom}) `;
+      video.style.filter = filter.trim();
+      video.style.transform = transform.trim();
+    }
+
+    togglePlayPause(video) {
+      if (!video) return;
+      if (video.paused) {
+        video.play().catch(() => {});
+      } else {
+        video.pause();
+      }
+    }
+
+    toggleMute(video) {
+      if (!video) return;
+      video.muted = !video.muted;
+    }
+
+    changeVolume(video, delta) {
+      if (!video) return;
+      let newVolume = video.volume + delta;
+      newVolume = Math.max(0, Math.min(1, newVolume));
+      video.volume = newVolume;
+    }
+
+    toggleLoop(video) {
+      if (!video) return;
+      video.loop = !video.loop;
+    }
+
+    seek(video, delta) {
+      if (!video) return;
+      video.currentTime += delta;
+      
+      // Only show the pop animation for larger skips (5s or 10s), to avoid spamming on 1s fine-scrolls.
+      if (Math.abs(delta) >= 5) {
+        this._showSkipAnimation(video, delta);
+      }
+    }
+
+    _showSkipAnimation(video, delta) {
+      if (!video) return;
+      let badge = this.videoSkipBadges.get(video);
+      
+      if (!badge) {
+        badge = document.createElement('div');
+        badge.className = 'usc-skip-badge';
+        this.videoSkipBadges.set(video, badge);
+      }
+      
+      const parent = video.parentElement;
+      if (parent && badge.parentElement !== parent) {
+        if (!parent.style.position || parent.style.position === 'static') {
+          parent.style.position = 'relative';
+        }
+        parent.appendChild(badge);
+      }
+      
+      if (delta > 0) {
+        badge.classList.remove('usc-skip-left');
+        badge.classList.add('usc-skip-right');
+      } else {
+        badge.classList.remove('usc-skip-right');
+        badge.classList.add('usc-skip-left');
+      }
+      
+      const sign = delta > 0 ? '+' : '';
+      badge.textContent = `${sign}${delta}s`;
+      
+      badge.classList.remove('usc-animate');
+      void badge.offsetWidth; // trigger reflow
+      badge.classList.add('usc-animate');
+      
+      if (badge._timeoutId) clearTimeout(badge._timeoutId);
+      badge._timeoutId = setTimeout(() => {
+        badge.classList.remove('usc-animate');
+      }, 500);
+    }
+
+    seekToPercentage(video, percent) {
+      if (!video || !video.duration || !isFinite(video.duration)) return;
+      video.currentTime = (percent / 100) * video.duration;
+    }
+
+    cycleZoom(video) {
+      if (!video) return;
+      const state = this._getVideoState(video);
+      const levels = [1, 1.25, 1.5, 2, 2.5, 3];
+      let idx = levels.indexOf(state.zoom);
+      state.zoom = levels[(idx + 1) % levels.length];
+      this._applyVisuals(video);
+    }
+
+    cycleBrightness(video) {
+      if (!video) return;
+      const state = this._getVideoState(video);
+      const levels = [1, 1.5, 2, 0.5];
+      let idx = levels.indexOf(state.brightness);
+      state.brightness = levels[(idx + 1) % levels.length];
+      this._applyVisuals(video);
+    }
+
+    async togglePiP(video) {
+      if (!video) return;
+      if (document.pictureInPictureElement) {
+        await document.exitPictureInPicture().catch(() => {});
+      } else {
+        await video.requestPictureInPicture().catch(() => {});
+      }
+    }
+
+    async toggleFullscreen(video) {
+      if (!video) return;
+      if (document.fullscreenElement) {
+        await document.exitFullscreen().catch(() => {});
+      } else {
+        await video.requestFullscreen().catch(() => {});
+      }
+    }
+
+    triggerSiteSpecific(action, video) {
+      const selectors = {
+        theater: ['.ytp-size-button'],
+        miniplayer: ['.ytp-miniplayer-button'],
+        next: ['.ytp-next-button', '.vjs-next-button', '[class*="next" i]', '[id*="next" i]', 'a[rel="next" i]'],
+        prev: ['.ytp-prev-button', '.vjs-prev-button', '[class*="prev" i]', '[id*="prev" i]', 'a[rel="prev" i]']
+      };
+      
+      const targetSelectors = selectors[action];
+      if (targetSelectors) {
+        for (const sel of targetSelectors) {
+          const btn = document.querySelector(sel);
+          if (btn) {
+            btn.click();
+            return true;
+          }
+        }
+      }
+
+      // Generic fallback for any HTML5 video
+      if (action === 'theater') {
+        this.toggleGenericTheaterMode(video);
+        return true;
+      }
+      if (action === 'miniplayer') {
+        this.toggleGenericMiniPlayer(video);
+        return true;
+      }
+
+      return false;
+    }
+
+    toggleGenericTheaterMode(video) {
+       if (!video) return;
+       if (video.classList.contains('usc-generic-theater')) {
+           video.classList.remove('usc-generic-theater');
+       } else {
+           video.classList.remove('usc-generic-miniplayer');
+           video.classList.add('usc-generic-theater');
+       }
+    }
+
+    toggleGenericMiniPlayer(video) {
+       if (!video) return;
+       if (video.classList.contains('usc-generic-miniplayer')) {
+           video.classList.remove('usc-generic-miniplayer');
+       } else {
+           video.classList.remove('usc-generic-theater');
+           video.classList.add('usc-generic-miniplayer');
+       }
+    }
+
+    takeScreenshot(video) {
+      if (!video) return;
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const link = document.createElement('a');
+      link.download = `screenshot_${Date.now()}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
   }
 
   USC.VideoManager = VideoManager;
