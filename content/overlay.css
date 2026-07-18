@@ -25,3 +25,33 @@
 .usc-speed-badge.usc-flash {
   transform: scale(1.1);
 }
+
+.usc-generic-theater {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none !important;
+  max-height: none !important;
+  z-index: 2147483647 !important;
+  object-fit: contain !important;
+  background: black !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.usc-generic-miniplayer {
+  position: fixed !important;
+  bottom: 20px !important;
+  right: 20px !important;
+  width: 400px !important;
+  height: auto !important;
+  max-width: 400px !important;
+  z-index: 2147483647 !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
+  border-radius: 8px !important;
+  background: black !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}

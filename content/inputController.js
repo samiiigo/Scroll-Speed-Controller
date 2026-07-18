@@ -143,7 +143,26 @@
         case 'KeyZ': this.vm.cycleZoom(video); break;
         case 'KeyB': this.vm.cycleBrightness(video); break;
         case 'KeyO': this.vm.toggleLoop(video); break;
-        case 'KeyP': this.vm.togglePiP(video); break;
+        case 'KeyP':
+          if (e.shiftKey) {
+            handled = this.vm.triggerSiteSpecific('prev', video);
+          } else {
+            this.vm.togglePiP(video);
+          }
+          break;
+        case 'KeyT':
+          handled = this.vm.triggerSiteSpecific('theater', video);
+          break;
+        case 'KeyI':
+          handled = this.vm.triggerSiteSpecific('miniplayer', video);
+          break;
+        case 'KeyN':
+          if (e.shiftKey) {
+            handled = this.vm.triggerSiteSpecific('next', video);
+          } else {
+            handled = false;
+          }
+          break;
         case 'KeyS': this.vm.takeScreenshot(video); break;
         case 'KeyA': this.vm.toggleAudioBoost(video); break;
         case 'ArrowLeft': this.vm.seek(video, -5); break;

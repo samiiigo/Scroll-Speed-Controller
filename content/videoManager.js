@@ -310,6 +310,58 @@
       }
     }
 
+    triggerSiteSpecific(action, video) {
+      const selectors = {
+        theater: ['.ytp-size-button'],
+        miniplayer: ['.ytp-miniplayer-button'],
+        next: ['.ytp-next-button', '.vjs-next-button', '[class*="next" i]', '[id*="next" i]', 'a[rel="next" i]'],
+        prev: ['.ytp-prev-button', '.vjs-prev-button', '[class*="prev" i]', '[id*="prev" i]', 'a[rel="prev" i]']
+      };
+      
+      const targetSelectors = selectors[action];
+      if (targetSelectors) {
+        for (const sel of targetSelectors) {
+          const btn = document.querySelector(sel);
+          if (btn) {
+            btn.click();
+            return true;
+          }
+        }
+      }
+
+      // Generic fallback for any HTML5 video
+      if (action === 'theater') {
+        this.toggleGenericTheaterMode(video);
+        return true;
+      }
+      if (action === 'miniplayer') {
+        this.toggleGenericMiniPlayer(video);
+        return true;
+      }
+
+      return false;
+    }
+
+    toggleGenericTheaterMode(video) {
+       if (!video) return;
+       if (video.classList.contains('usc-generic-theater')) {
+           video.classList.remove('usc-generic-theater');
+       } else {
+           video.classList.remove('usc-generic-miniplayer');
+           video.classList.add('usc-generic-theater');
+       }
+    }
+
+    toggleGenericMiniPlayer(video) {
+       if (!video) return;
+       if (video.classList.contains('usc-generic-miniplayer')) {
+           video.classList.remove('usc-generic-miniplayer');
+       } else {
+           video.classList.remove('usc-generic-theater');
+           video.classList.add('usc-generic-miniplayer');
+       }
+    }
+
     takeScreenshot(video) {
       if (!video) return;
       const canvas = document.createElement('canvas');
