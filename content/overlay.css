@@ -55,3 +55,82 @@
   margin: 0 !important;
   padding: 0 !important;
 }
+
+.usc-skip-badge {
+  position: absolute;
+  top: 50%;
+  z-index: 2147483647;
+  background: transparent;
+  color: #ffffff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8), 0 0 4px rgba(0, 0, 0, 0.5);
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 28px;
+  font-weight: bold;
+  padding: 12px 24px;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0;
+  white-space: nowrap;
+}
+
+.usc-skip-badge.usc-skip-left {
+  left: 25%;
+  transform: translate(-50%, -50%) scale(0.8);
+}
+
+.usc-skip-badge.usc-skip-right {
+  right: 25%;
+  transform: translate(50%, -50%) scale(0.8);
+}
+
+.usc-skip-badge.usc-skip-left.usc-animate {
+  animation: usc-skip-pop-left 0.5s ease-out forwards;
+}
+
+.usc-skip-badge.usc-skip-right.usc-animate {
+  animation: usc-skip-pop-right 0.5s ease-out forwards;
+}
+
+@keyframes usc-skip-pop-left {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+  15% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+  30% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  80% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+}
+
+@keyframes usc-skip-pop-right {
+  0% {
+    opacity: 0;
+    transform: translate(50%, -50%) scale(0.8);
+  }
+  15% {
+    opacity: 1;
+    transform: translate(50%, -50%) scale(1.1);
+  }
+  30% {
+    transform: translate(50%, -50%) scale(1);
+  }
+  80% {
+    opacity: 1;
+    transform: translate(50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(50%, -50%) scale(0.9);
+  }
+}

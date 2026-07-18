@@ -12,6 +12,7 @@
       this.videos = new Set();
       this.videoSpeeds = new WeakMap();
       this.videoBadges = new WeakMap();
+      this.videoSkipBadges = new WeakMap();
       this.lastInteractedVideo = null;
       this.observer = null;
       this.showBadge = options.showBadge !== false;
@@ -218,7 +219,9 @@
       this.lastInteractedVideo = null;
       this.videoSpeeds = new WeakMap();
       this.videoBadges = new WeakMap();
+      this.videoSkipBadges = new WeakMap();
       this.videoStates = new WeakMap();
+      document.querySelectorAll('.usc-skip-badge').forEach(b => b.remove());
     }
 
     _getVideoState(video) {
@@ -267,6 +270,46 @@
     seek(video, delta) {
       if (!video) return;
       video.currentTime += delta;
+      this._showSkipAnimation(video, delta);
+    }
+
+    _showSkipAnimation(video, delta) {
+      if (!video) return;
+      let badge = this.videoSkipBadges.get(video);
+      
+      if (!badge) {
+        badge = document.createElement('div');
+        badge.className = 'usc-skip-badge';
+        this.videoSkipBadges.set(video, badge);
+      }
+      
+      const parent = video.parentElement;
+      if (parent && badge.parentElement !== parent) {
+        if (!parent.style.position || parent.style.position === 'static') {
+          parent.style.position = 'relative';
+        }
+        parent.appendChild(badge);
+      }
+      
+      if (delta > 0) {
+        badge.classList.remove('usc-skip-left');
+        badge.classList.add('usc-skip-right');
+      } else {
+        badge.classList.remove('usc-skip-right');
+        badge.classList.add('usc-skip-left');
+      }
+      
+      const sign = delta > 0 ? '+' : '';
+      badge.textContent = `${sign}${delta}s`;
+      
+      badge.classList.remove('usc-animate');
+      void badge.offsetWidth; // trigger reflow
+      badge.classList.add('usc-animate');
+      
+      if (badge._timeoutId) clearTimeout(badge._timeoutId);
+      badge._timeoutId = setTimeout(() => {
+        badge.classList.remove('usc-animate');
+      }, 500);
     }
 
     seekToPercentage(video, percent) {

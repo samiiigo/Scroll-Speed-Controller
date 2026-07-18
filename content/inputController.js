@@ -102,6 +102,9 @@
     _onKeyDown(e) {
       if (this._isTyping()) return;
 
+      // Ignore shortcuts with Ctrl, Alt, or Meta (Command) so we don't break browser defaults like Ctrl+R
+      if (e.ctrlKey || e.altKey || e.metaKey) return;
+
       if (e.code === 'Space') {
         e.preventDefault();
         e.stopPropagation();
