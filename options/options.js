@@ -60,7 +60,7 @@
     clearTimeout(blacklistTimer);
     blacklistTimer = setTimeout(() => {
       save({ siteBlacklist: $blacklist.value.trim() });
-    }, 500);
+    }, 1500);
   });
 
   // ── Toast notification ──

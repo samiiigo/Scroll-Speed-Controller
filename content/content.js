@@ -35,10 +35,18 @@
   sc.scrollStep = scrollStep;
 
   const vm = new VideoManager({ showBadge, badgePosition });
-  vm.init();
-
   const ic = new InputController(sc, vm);
-  ic.attach();
+  
+  const start = () => {
+    ic.attach();
+    vm.init();
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start);
+  } else {
+    start();
+  }
 
   // Reset speed on SPA navigation if the user opted in
   if (autoReset) {

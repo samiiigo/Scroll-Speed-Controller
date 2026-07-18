@@ -27,7 +27,14 @@
     }
 
     _scanForVideos() {
-      document.querySelectorAll('video').forEach(v => this._attachVideo(v));
+      const walk = (root) => {
+        if (!root.querySelectorAll) return;
+        root.querySelectorAll('video').forEach(v => this._attachVideo(v));
+        root.querySelectorAll('*').forEach(el => {
+          if (el.shadowRoot) walk(el.shadowRoot);
+        });
+      };
+      walk(document);
     }
 
     _attachVideo(video) {
@@ -44,12 +51,14 @@
     applySpeed(speed) {
       const toRemove = [];
       this.videos.forEach(video => {
+        if (!video.isConnected) {
+          toRemove.push(video);
+          return;
+        }
         try {
           video.playbackRate = speed;
           this.videoSpeeds.set(video, speed);
-        } catch (_) {
-          if (!video.isConnected) toRemove.push(video);
-        }
+        } catch (_) {}
       });
       toRemove.forEach(v => this.videos.delete(v));
       this._updateAllOverlays(speed);
@@ -64,12 +73,13 @@
     applySpeedToVideo(video, speed, options = {}) {
       if (!video || !this.videos.has(video)) return;
       const { remember = true } = options;
+      if (!video.isConnected) {
+        this.videos.delete(video);
+        return;
+      }
       try {
         video.playbackRate = speed;
       } catch (_) {
-        if (!video.isConnected) {
-          this.videos.delete(video);
-        }
         return;
       }
       if (remember) this.videoSpeeds.set(video, speed);
@@ -118,6 +128,11 @@
             if (node.nodeName === 'VIDEO') this._attachVideo(node);
             if (node.querySelectorAll) {
               node.querySelectorAll('video').forEach(v => this._attachVideo(v));
+              node.querySelectorAll('*').forEach(el => {
+                if (el.shadowRoot) {
+                  el.shadowRoot.querySelectorAll('video').forEach(v => this._attachVideo(v));
+                }
+              });
             }
           }
         }
@@ -132,9 +147,17 @@
         this._scanForVideos();
       };
 
+      const pollRescan = () => {
+        let attempts = 0;
+        const interval = setInterval(() => {
+          this._scanForVideos();
+          if (++attempts >= 5) clearInterval(interval);
+        }, 300);
+      };
+
       window.addEventListener('yt-navigate-finish', rescan);
-      window.addEventListener('popstate', () => setTimeout(() => this._scanForVideos(), 800));
-      window.addEventListener('hashchange', () => setTimeout(() => this._scanForVideos(), 800));
+      window.addEventListener('popstate', pollRescan);
+      window.addEventListener('hashchange', pollRescan);
     }
 
     _injectOverlay(video) {
@@ -175,6 +198,7 @@
     }
 
     _updateAllOverlays(speed) {
+      this._announce(`Speed set to ${speed.toFixed(2)}x`);
       const badges = document.querySelectorAll('.usc-speed-badge');
       badges.forEach(badge => {
         badge.textContent = `${speed.toFixed(2)}×`;
@@ -192,6 +216,7 @@
 
     _updateOverlayForVideo(video, speed) {
       if (!video) return;
+      this._announce(`Speed set to ${speed.toFixed(2)}x`);
       const badge = this.videoBadges.get(video);
       if (!badge) return;
       badge.textContent = `${speed.toFixed(2)}×`;
@@ -229,6 +254,22 @@
         this.videoStates.set(video, { zoom: 1, brightness: 1 });
       }
       return this.videoStates.get(video);
+    }
+
+    _createAriaLive() {
+      if (this.ariaAnnouncer) return;
+      this.ariaAnnouncer = document.createElement('div');
+      this.ariaAnnouncer.className = 'usc-sr-only';
+      this.ariaAnnouncer.setAttribute('aria-live', 'polite');
+      document.body.appendChild(this.ariaAnnouncer);
+    }
+
+    _announce(message) {
+       if (!this.ariaAnnouncer) this._createAriaLive();
+       if (this.ariaAnnouncer) {
+         this.ariaAnnouncer.textContent = message;
+         setTimeout(() => { this.ariaAnnouncer.textContent = ''; }, 2000);
+       }
     }
 
     _applyVisuals(video) {

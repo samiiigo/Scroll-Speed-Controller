@@ -96,7 +96,10 @@
       if (!el) return false;
       const tag = el.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
-      return el.isContentEditable;
+      if (el.isContentEditable) return true;
+      const role = el.getAttribute('role');
+      if (role === 'textbox' || role === 'combobox' || role === 'searchbox') return true;
+      return false;
     }
 
     _onKeyDown(e) {
@@ -311,8 +314,8 @@
     }
 
     _onDoubleClick(e) {
-      // If the event bubbled all the way here, the site probably doesn't handle it.
-      const video = this._pickTargetVideo(e);
+      // Only handle dblclick if the user actually clicked ON the video
+      const video = this.vm.getVideoAtPoint(e?.clientX, e?.clientY);
       if (!video) return;
       
       e.preventDefault();
