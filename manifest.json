@@ -1,23 +1,32 @@
 {
   "manifest_version": 3,
   "name": "Universal Video Speed Controller",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Scroll + Spacebar to control video speed on any HTML5 site",
-  "permissions": ["storage", "activeTab"],
-  "host_permissions": ["*://*/*"],
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "*://*/*"
+  ],
   "background": {
     "service_worker": "background.js"
   },
   "content_scripts": [
     {
-      "matches": ["*://*/*"],
+      "matches": [
+        "*://*/*"
+      ],
       "js": [
         "content/speedController.js",
         "content/videoManager.js",
         "content/inputController.js",
         "content/content.js"
       ],
-      "css": ["content/overlay.css"],
+      "css": [
+        "content/overlay.css"
+      ],
       "run_at": "document_idle",
       "all_frames": true
     }
