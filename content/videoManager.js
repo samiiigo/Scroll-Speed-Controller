@@ -16,6 +16,7 @@
       this.observer = null;
       this.showBadge = options.showBadge !== false;
       this.badgePosition = options.badgePosition || 'top-left';
+      this.videoStates = new WeakMap();
     }
 
     init() {
@@ -217,6 +218,133 @@
       this.lastInteractedVideo = null;
       this.videoSpeeds = new WeakMap();
       this.videoBadges = new WeakMap();
+      this.videoStates = new WeakMap();
+    }
+
+    _getVideoState(video) {
+      if (!this.videoStates.has(video)) {
+        this.videoStates.set(video, { zoom: 1, brightness: 1, audioContext: null, gainNode: null, boosted: false });
+      }
+      return this.videoStates.get(video);
+    }
+
+    _applyVisuals(video) {
+      const state = this._getVideoState(video);
+      let filter = '';
+      let transform = '';
+      if (state.brightness !== 1) filter += `brightness(${state.brightness}) `;
+      if (state.zoom !== 1) transform += `scale(${state.zoom}) `;
+      video.style.filter = filter.trim();
+      video.style.transform = transform.trim();
+    }
+
+    togglePlayPause(video) {
+      if (!video) return;
+      if (video.paused) {
+        video.play().catch(() => {});
+      } else {
+        video.pause();
+      }
+    }
+
+    toggleMute(video) {
+      if (!video) return;
+      video.muted = !video.muted;
+    }
+
+    changeVolume(video, delta) {
+      if (!video) return;
+      let newVolume = video.volume + delta;
+      newVolume = Math.max(0, Math.min(1, newVolume));
+      video.volume = newVolume;
+    }
+
+    toggleLoop(video) {
+      if (!video) return;
+      video.loop = !video.loop;
+    }
+
+    seek(video, delta) {
+      if (!video) return;
+      video.currentTime += delta;
+    }
+
+    seekToPercentage(video, percent) {
+      if (!video || !video.duration) return;
+      video.currentTime = (percent / 100) * video.duration;
+    }
+
+    cycleZoom(video) {
+      if (!video) return;
+      const state = this._getVideoState(video);
+      const levels = [1, 1.25, 1.5, 2, 2.5, 3];
+      let idx = levels.indexOf(state.zoom);
+      state.zoom = levels[(idx + 1) % levels.length];
+      this._applyVisuals(video);
+    }
+
+    cycleBrightness(video) {
+      if (!video) return;
+      const state = this._getVideoState(video);
+      const levels = [1, 1.5, 2, 0.5];
+      let idx = levels.indexOf(state.brightness);
+      state.brightness = levels[(idx + 1) % levels.length];
+      this._applyVisuals(video);
+    }
+
+    async togglePiP(video) {
+      if (!video) return;
+      if (document.pictureInPictureElement) {
+        await document.exitPictureInPicture().catch(() => {});
+      } else {
+        await video.requestPictureInPicture().catch(() => {});
+      }
+    }
+
+    async toggleFullscreen(video) {
+      if (!video) return;
+      if (document.fullscreenElement) {
+        await document.exitFullscreen().catch(() => {});
+      } else {
+        await video.requestFullscreen().catch(() => {});
+      }
+    }
+
+    takeScreenshot(video) {
+      if (!video) return;
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const link = document.createElement('a');
+      link.download = `screenshot_${Date.now()}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    toggleAudioBoost(video) {
+      if (!video) return;
+      const state = this._getVideoState(video);
+      try {
+        if (!state.audioContext) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          state.audioContext = new AudioContext();
+          const source = state.audioContext.createMediaElementSource(video);
+          state.gainNode = state.audioContext.createGain();
+          source.connect(state.gainNode);
+          state.gainNode.connect(state.audioContext.destination);
+        }
+        
+        state.boosted = !state.boosted;
+        state.gainNode.gain.value = state.boosted ? 2.0 : 1.0;
+        
+        if (state.audioContext.state === 'suspended') {
+          state.audioContext.resume();
+        }
+      } catch (e) {
+        console.warn('Audio boost failed, might be due to CORS:', e);
+      }
     }
   }
 

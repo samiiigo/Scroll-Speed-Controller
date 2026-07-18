@@ -34,6 +34,12 @@
       return this.currentSpeed;
     }
 
+    stepSpeed(direction) {
+      const raw = this.currentSpeed + direction * this.scrollStep;
+      this.currentSpeed = this.clamp(parseFloat(raw.toFixed(2)));
+      return this.currentSpeed;
+    }
+
     /** Spacebar keydown — jump to turbo speed. */
     activateTurbo() {
       if (this.isTurboActive) return this.currentSpeed;

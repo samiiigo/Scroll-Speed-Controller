@@ -97,29 +97,93 @@
     }
 
     _onKeyDown(e) {
-      if (e.code !== 'Space') return;
       if (this._isTyping()) return;
 
-      e.preventDefault();
-      e.stopPropagation();
+      if (e.code === 'Space') {
+        e.preventDefault();
+        e.stopPropagation();
 
-      if (e.repeat) return; // Ignore repeated keydowns when held
+        if (e.repeat) return; // Ignore repeated keydowns when held
 
-      if (!this.spaceHeld && !this.longPressTimeout) {
-        const video = this._pickTargetVideo(e);
-        if (!video) return;
+        if (!this.spaceHeld && !this.longPressTimeout) {
+          const video = this._pickTargetVideo(e);
+          if (!video) return;
 
-        this.holdVideo = video;
+          this.holdVideo = video;
 
-        this.longPressTimeout = setTimeout(() => {
-          this.longPressTimeout = null;
-          this.spaceHeld = true;
-          this.scrolledDuringHold = false;
-          this.holdBaseSpeed = this.vm.getRememberedSpeed(this.holdVideo);
-          this.sc.currentSpeed = this.holdBaseSpeed;
-          this.sc.activateTurbo();
-          this.vm.applySpeedToVideo(this.holdVideo, this.sc.TURBO_SPEED, { remember: false });
-        }, 250);
+          this.longPressTimeout = setTimeout(() => {
+            this.longPressTimeout = null;
+            this.spaceHeld = true;
+            this.scrolledDuringHold = false;
+            this.holdBaseSpeed = this.vm.getRememberedSpeed(this.holdVideo);
+            this.sc.currentSpeed = this.holdBaseSpeed;
+            this.sc.activateTurbo();
+            this.vm.applySpeedToVideo(this.holdVideo, this.sc.TURBO_SPEED, { remember: false });
+          }, 250);
+        }
+        return;
+      }
+
+      if (e.repeat) return;
+
+      const video = this._pickTargetVideo(e);
+      if (!video) return;
+      let handled = true;
+
+      switch(e.code) {
+        case 'KeyK': this.vm.togglePlayPause(video); break;
+        case 'KeyJ': this.vm.seek(video, -10); break;
+        case 'KeyL': this.vm.seek(video, 10); break;
+        case 'KeyF': this.vm.toggleFullscreen(video); break;
+        case 'KeyM': this.vm.toggleMute(video); break;
+        case 'KeyR':
+          this.sc.reset();
+          this.vm.applySpeedToVideo(video, 1.0, { remember: true });
+          break;
+        case 'KeyZ': this.vm.cycleZoom(video); break;
+        case 'KeyB': this.vm.cycleBrightness(video); break;
+        case 'KeyO': this.vm.toggleLoop(video); break;
+        case 'KeyP': this.vm.togglePiP(video); break;
+        case 'KeyS': this.vm.takeScreenshot(video); break;
+        case 'KeyA': this.vm.toggleAudioBoost(video); break;
+        case 'ArrowLeft': this.vm.seek(video, -5); break;
+        case 'ArrowRight': this.vm.seek(video, 5); break;
+        case 'ArrowUp': this.vm.changeVolume(video, 0.05); break;
+        case 'ArrowDown': this.vm.changeVolume(video, -0.05); break;
+        case 'Home': this.vm.seekToPercentage(video, 0); break;
+        case 'End': this.vm.seekToPercentage(video, 100); break;
+        case 'Comma':
+          if (e.shiftKey) {
+            const speed = this.sc.stepSpeed(-1);
+            this.vm.applySpeedToVideo(video, speed, { remember: true });
+          } else {
+            handled = false;
+          }
+          break;
+        case 'Period':
+          if (e.shiftKey) {
+            const speed = this.sc.stepSpeed(1);
+            this.vm.applySpeedToVideo(video, speed, { remember: true });
+          } else {
+            handled = false;
+          }
+          break;
+        default:
+          if (e.code.startsWith('Digit')) {
+            const digit = parseInt(e.code.replace('Digit', ''), 10);
+            if (!isNaN(digit)) {
+              this.vm.seekToPercentage(video, digit === 0 ? 0 : digit * 10);
+            } else {
+              handled = false;
+            }
+          } else {
+            handled = false;
+          }
+      }
+
+      if (handled) {
+        e.preventDefault();
+        e.stopPropagation();
       }
     }
 
@@ -166,13 +230,23 @@
         }
       }
 
-      if (!this.spaceHeld) return;
+      const isModifierScroll = e.shiftKey || e.altKey;
+
+      if (!this.spaceHeld && !isModifierScroll) return;
 
       e.preventDefault();
       e.stopPropagation();
 
       const video = this._pickTargetVideo(e) || this.holdVideo;
       if (!video) return;
+
+      if (isModifierScroll) {
+        // Fine seeking (Shift) or Scrubbing (Alt)
+        const direction = e.deltaY > 0 ? -1 : 1;
+        const delta = e.shiftKey ? 1 : 5; // 1s for shift, 5s for alt
+        this.vm.seek(video, direction * delta);
+        return;
+      }
 
       if (this.holdVideo && this.holdVideo !== video) {
         this.vm.applySpeedToVideo(this.holdVideo, 1.0, { remember: true });
