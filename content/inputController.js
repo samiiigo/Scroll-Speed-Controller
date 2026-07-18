@@ -29,6 +29,7 @@
       this._onBlur = this._onBlur.bind(this);
       this._onVisibilityChange = this._onVisibilityChange.bind(this);
       this._onMouseMove = this._onMouseMove.bind(this);
+      this._onDoubleClick = this._onDoubleClick.bind(this);
     }
 
     attach() {
@@ -40,6 +41,7 @@
       window.addEventListener('blur', this._onBlur);
       document.addEventListener('visibilitychange', this._onVisibilityChange);
       document.addEventListener('mousemove', this._onMouseMove, { capture: true });
+      document.addEventListener('dblclick', this._onDoubleClick); // Bubble phase fallback
     }
 
     detach() {
@@ -51,6 +53,7 @@
       window.removeEventListener('blur', this._onBlur);
       document.removeEventListener('visibilitychange', this._onVisibilityChange);
       document.removeEventListener('mousemove', this._onMouseMove, true);
+      document.removeEventListener('dblclick', this._onDoubleClick);
 
       if (this.longPressTimeout) {
         clearTimeout(this.longPressTimeout);
@@ -304,6 +307,15 @@
       this.pointerY = e.clientY;
       const video = this.vm.getVideoAtPoint(this.pointerX, this.pointerY);
       if (video) this.hoveredVideo = video;
+    }
+
+    _onDoubleClick(e) {
+      // If the event bubbled all the way here, the site probably doesn't handle it.
+      const video = this._pickTargetVideo(e);
+      if (!video) return;
+      
+      e.preventDefault();
+      this.vm.toggleFullscreen(video);
     }
   }
 
