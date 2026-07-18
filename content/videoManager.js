@@ -226,7 +226,7 @@
 
     _getVideoState(video) {
       if (!this.videoStates.has(video)) {
-        this.videoStates.set(video, { zoom: 1, brightness: 1, audioContext: null, gainNode: null, boosted: false });
+        this.videoStates.set(video, { zoom: 1, brightness: 1 });
       }
       return this.videoStates.get(video);
     }
@@ -422,29 +422,6 @@
       link.click();
     }
 
-    toggleAudioBoost(video) {
-      if (!video) return;
-      const state = this._getVideoState(video);
-      try {
-        if (!state.audioContext) {
-          const AudioContext = window.AudioContext || window.webkitAudioContext;
-          state.audioContext = new AudioContext();
-          const source = state.audioContext.createMediaElementSource(video);
-          state.gainNode = state.audioContext.createGain();
-          source.connect(state.gainNode);
-          state.gainNode.connect(state.audioContext.destination);
-        }
-        
-        state.boosted = !state.boosted;
-        state.gainNode.gain.value = state.boosted ? 2.0 : 1.0;
-        
-        if (state.audioContext.state === 'suspended') {
-          state.audioContext.resume();
-        }
-      } catch (e) {
-        console.warn('Audio boost failed, might be due to CORS:', e);
-      }
-    }
   }
 
   USC.VideoManager = VideoManager;

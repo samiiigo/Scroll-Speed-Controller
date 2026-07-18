@@ -170,7 +170,6 @@
           }
           break;
         case 'KeyS': this.vm.takeScreenshot(video); break;
-        case 'KeyA': this.vm.toggleAudioBoost(video); break;
         case 'ArrowLeft': this.vm.seek(video, -5); break;
         case 'ArrowRight': this.vm.seek(video, 5); break;
         case 'ArrowUp': this.vm.changeVolume(video, 0.05); break;
