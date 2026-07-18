@@ -17,6 +17,7 @@
       this.scrolledDuringHold = false;
       this.holdVideo = null;
       this.holdBaseSpeed = 1.0;
+      this.longPressTimeout = null;
       this.pointerX = null;
       this.pointerY = null;
       this.hoveredVideo = null;
@@ -51,6 +52,11 @@
       document.removeEventListener('visibilitychange', this._onVisibilityChange);
       document.removeEventListener('mousemove', this._onMouseMove, true);
 
+      if (this.longPressTimeout) {
+        clearTimeout(this.longPressTimeout);
+        this.longPressTimeout = null;
+      }
+
       if (this.spaceHeld) {
         this._restoreFromSpaceHold();
       }
@@ -63,6 +69,10 @@
       this.scrolledDuringHold = false;
       this.holdVideo = null;
       this.holdBaseSpeed = 1.0;
+      if (this.longPressTimeout) {
+        clearTimeout(this.longPressTimeout);
+        this.longPressTimeout = null;
+      }
 
       this.sc.reset();
 
@@ -93,32 +103,69 @@
       e.preventDefault();
       e.stopPropagation();
 
-      if (!this.spaceHeld) {
+      if (e.repeat) return; // Ignore repeated keydowns when held
+
+      if (!this.spaceHeld && !this.longPressTimeout) {
         const video = this._pickTargetVideo(e);
         if (!video) return;
 
-        this.spaceHeld = true;
-        this.scrolledDuringHold = false;
         this.holdVideo = video;
-        this.holdBaseSpeed = this.vm.getRememberedSpeed(video);
-        this.sc.currentSpeed = this.holdBaseSpeed;
-        this.sc.activateTurbo();
-        this.vm.applySpeedToVideo(video, this.sc.TURBO_SPEED, { remember: false });
+
+        this.longPressTimeout = setTimeout(() => {
+          this.longPressTimeout = null;
+          this.spaceHeld = true;
+          this.scrolledDuringHold = false;
+          this.holdBaseSpeed = this.vm.getRememberedSpeed(this.holdVideo);
+          this.sc.currentSpeed = this.holdBaseSpeed;
+          this.sc.activateTurbo();
+          this.vm.applySpeedToVideo(this.holdVideo, this.sc.TURBO_SPEED, { remember: false });
+        }, 250);
       }
     }
 
     _onKeyUp(e) {
       if (e.code !== 'Space') return;
-      if (!this.spaceHeld) return;
 
       e.preventDefault();
       e.stopPropagation();
+
+      if (this.longPressTimeout) {
+        // Short press detected
+        clearTimeout(this.longPressTimeout);
+        this.longPressTimeout = null;
+
+        if (this.holdVideo) {
+          if (this.holdVideo.paused) {
+            this.holdVideo.play().catch(() => { });
+          } else {
+            this.holdVideo.pause();
+          }
+          this.holdVideo = null;
+        }
+        return;
+      }
+
+      if (!this.spaceHeld) return;
 
       // Space keyup is the authoritative restore event.
       this._restoreFromSpaceHold();
     }
 
     _onWheel(e) {
+      if (this.longPressTimeout) {
+        // User scrolled during the short press window, convert immediately to spaceHeld
+        clearTimeout(this.longPressTimeout);
+        this.longPressTimeout = null;
+        this.spaceHeld = true;
+        if (!this.holdVideo) {
+          this.holdVideo = this._pickTargetVideo(e);
+        }
+        if (this.holdVideo) {
+          this.holdBaseSpeed = this.vm.getRememberedSpeed(this.holdVideo);
+          this.sc.currentSpeed = this.holdBaseSpeed;
+        }
+      }
+
       if (!this.spaceHeld) return;
 
       e.preventDefault();
@@ -140,13 +187,21 @@
     }
 
     _onBlur() {
+      if (this.longPressTimeout) {
+        this._restoreFromSpaceHold();
+        return;
+      }
       if (!this.spaceHeld) return;
       this._restoreFromSpaceHold();
     }
 
     _onVisibilityChange() {
-      if (!this.spaceHeld) return;
       if (document.visibilityState === 'hidden') {
+        if (this.longPressTimeout) {
+          this._restoreFromSpaceHold();
+          return;
+        }
+        if (!this.spaceHeld) return;
         this._restoreFromSpaceHold();
       }
     }
